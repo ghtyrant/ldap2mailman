@@ -1,0 +1,36 @@
+# Server connection information
+# ldap_password can either be plaintext or base64 encoded, if you prepend {base64}
+[core]
+ldap_host=ldap://company.example.com
+ldap_user=DOMAIN\my_user
+ldap_password={base64}cGFzc3dvcmQ=
+
+# search_base: LDAP search base for fetching user information
+# group_search_base: LDAP search base for fetching group information (group admin, ...)
+# member_query: Base query used to fetch user information. Overwrite ldap_group to use this or overwrite it completely for custom queries
+# fetch_admin: Automatically fetch group admin. Only works when you specify ldap_group in the form of cn=<groupname>,ou=<...>
+# list_admin: Default list admin, used if no other admin could be determined
+# Case is important!
+[DEFAULT]
+search_base=ou=Users,ou=Company,dc=domain,dc=company,dc=example,dc=com
+group_search_base=ou=Groups,ou=Company,dc=domain,dc=company,dc=example,dc=com
+member_query=(&(objectCategory=person)(memberOf=%(ldap_group)s,ou=Groups,ou=Company,DC=domain,DC=company,DC=example,DC=com))
+fetch_admin=true
+list_admin=listmaster@company.example.com
+
+# Redefine member_query for complex groups
+[all]
+member_query=(objectCategory=person)
+fetch_admin=false
+
+# ... or simply define ldap_group for simple groups
+# The "cn=..." part will also be used to fetch group managers
+[group1]
+ldap_group=cn=my_group1,ou=Departments
+
+# ... if you don't want this, simply set fetch_admin=false
+# Optionally, overwrite list_admin to hardcode a list manager
+[myothergroup]
+ldap_group=cn=my_group2,ou=Departments
+fetch_admin=false
+list_admin=theboss@company.example.com
